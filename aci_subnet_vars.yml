@@ -1,5 +1,5 @@
 aci_subnet:
-- aci_subnet: 10.1.1.300/24
+- aci_subnet: 10.1.1.3/24
   aci_subnet_tn_name: marks_first_tenant
   aci_subnet_bd: mark_first_bd_for_subnet
   aci_subnet_scope: private
