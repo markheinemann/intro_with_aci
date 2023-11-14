@@ -7,4 +7,4 @@ bd,,,mark_first_bd_for_subnet,marks_first_tenant,This bridge domain is created b
 bd,,,mark_2nd_bd_for_subnet,marks_second_tenant,This bridge domain is created by the Terraform ACI provider2,,,,,
 ,,,,,,,,,,
 ,,,,,,,,,,
-aci_subnet,,,,,,10.1.1.1/24,marks_first_tenant,mark_first_bd_for_subnet,private,This aci subnet is created by Terraform
+aci_subnet,,,,,,10.1.1.100/24,marks_first_tenant,mark_first_bd_for_subnet,private,This aci subnet is created by Terraform
