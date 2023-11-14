@@ -111,14 +111,19 @@ output "aci_subnet_details" {
 
 resource "aci_subnet" "aci_subnets" {
   for_each = { for t in local.yaml_aci_subnets.aci_subnet : t.aci_subnet => t }
-
-  #parent_dn   = each.value.aci_subnet_bd
-  #parent_dn    = "uni/tn-${each.value.aci_subnet_bd}"
   parent_dn    = "uni/tn-${each.value.aci_subnet_tn_name}/BD-${each.value.aci_subnet_bd}"
-
-#  #tenant_dn   = "uni/tn-${each.value.bd_tenant_name}"
   ip        = each.value.aci_subnet
   description = each.value.aci_subnet_description
   scope = [each.value.aci_subnet_scope]
+
+  depends_on = [null_resource.aci_subnet_dependency]
+}
+
+resource "null_resource" "aci_subnet_dependency" {
+  depends_on = [aci_bridge_domain.bridge_domains]
+
+  triggers = {
+    aci_subnet_dependency = "${jsonencode(aci_bridge_domain.bridge_domains)}"
+  }
 }
 
