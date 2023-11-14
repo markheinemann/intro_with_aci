@@ -1,0 +1,7 @@
+tenant:
+- tenant: marks_first_tenant
+  description: This bridge domain is created by the Terraform ACI provider1
+
+- tenant: marks_second_tenant
+  description: This bridge domain is created by the Terraform ACI provider2
+

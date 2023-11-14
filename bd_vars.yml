@@ -1,0 +1,9 @@
+bd:
+- bd: mark_first_bd_for_subnet
+  bd_tenant_name: marks_first_tenant
+  bd_description: This bridge domain is created by the Terraform ACI provider1
+
+- bd: mark_2nd_bd_for_subnet
+  bd_tenant_name: marks_second_tenant
+  bd_description: This bridge domain is created by the Terraform ACI provider2
+

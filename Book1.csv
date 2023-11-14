@@ -1,0 +1,10 @@
+type,tenant_name,tenant_description,bd_name,bd_tenant_name,bd_description,aci_subnet_name,aci_subnet_tn_name,aci_subnet_bd,aci_subnet_scope,aci_subnet_description
+tenant,marks_first_tenant,This bridge domain is created by the Terraform ACI provider1,,,,,,,,
+tenant,marks_second_tenant,This bridge domain is created by the Terraform ACI provider2,,,,,,,,
+,,,,,,,,,,
+,,,,,,,,,,
+bd,,,mark_first_bd_for_subnet,marks_first_tenant,This bridge domain is created by the Terraform ACI provider1,,,,,
+bd,,,mark_2nd_bd_for_subnet,marks_second_tenant,This bridge domain is created by the Terraform ACI provider2,,,,,
+,,,,,,,,,,
+,,,,,,,,,,
+aci_subnet,,,,,,10.1.1.1/24,marks_first_tenant,mark_first_bd_for_subnet,private,This aci subnet is created by Terraform
