@@ -125,9 +125,76 @@ with open(output_yaml_file_path_leaf, 'w') as yaml_file:
             yaml_file.write("\n")
 
 
+#
+output_yaml_file_path_leaf = "app_profile_vars.yml"
+
+data = defaultdict(list)  # Use defaultdict to group data by function
+
+with open(csv_file_path, 'r') as csv_file:
+    reader = csv.DictReader(csv_file)
+    for row in reader:
+        type = row["type"]
+        #print(type)
+##############################################
+#          PROCESS application_profile        #
+##############################################
+
+
+        if type == "app_profile":
+            data[type].append({
+                "app_profile_name": row["app_profile_name"],
+                "app_profile_tenant": row["app_profile_tenant"]
+            })
+
+with open(output_yaml_file_path_leaf, 'w') as yaml_file:
+    for function, items in data.items():
+        yaml_file.write("{}:\n".format(function))
+        for item in items:
+#            print(item)
+            yaml_file.write("- app_profile: {}\n".format(item["app_profile_name"]))
+            yaml_file.write("  app_profile_tenant: {}\n".format(item["app_profile_tenant"]))
+
+
+            yaml_file.write("\n")
 
 
 
+
+#
+output_yaml_file_path_leaf = "epg_vars.yml"
+
+data = defaultdict(list)  # Use defaultdict to group data by function
+
+with open(csv_file_path, 'r') as csv_file:
+    reader = csv.DictReader(csv_file)
+    for row in reader:
+        type = row["type"]
+        #print(type)
+##############################################
+#          PROCESS epg       #
+##############################################
+
+
+        if type == "epg":
+            data[type].append({
+                "epg_name": row["epg_name"],
+                "epg_tenant": row["epg_tenant"],
+                "epg_map_to_bd": row["epg_map_to_bd"],
+                "epg_map_to_app_profile": row["epg_map_to_app_profile"]
+            })
+
+with open(output_yaml_file_path_leaf, 'w') as yaml_file:
+    for function, items in data.items():
+        yaml_file.write("{}:\n".format(function))
+        for item in items:
+#            print(item)
+            yaml_file.write("- epg: {}\n".format(item["epg_name"]))
+            yaml_file.write("  epg_tenant: {}\n".format(item["epg_tenant"]))
+            yaml_file.write("  epg_map_to_bd: {}\n".format(item["epg_map_to_bd"]))
+            yaml_file.write("  epg_map_to_app_profile: {}\n".format(item["epg_map_to_app_profile"]))
+
+            
+            yaml_file.write("\n")
 
 
 

@@ -8,46 +8,12 @@ provider "aci" {
   insecure = true
 }
 
-#resource "aci_tenant" "terraform_tenant" {
-#  name        = "marks_tenant_for_terraform"   
-#  description = "This tenant is created by the Terraform ACI provider"
-#}
-
-#resource "aci_bridge_domain" "bd_for_subnet" {
-#  tenant_dn   = aci_tenant.terraform_tenant.id
-#  name        = "mark_bd_for_subnet"
-#  description = "This bridge domain is created by the Terraform ACI provider"
-#}
 
 
-
-#resource "aci_subnet" "demosubnet" {
-#  parent_dn = aci_bridge_domain.bd_for_subnet.id
-#  ip               = "10.1.1.1/24"
-#  scope            = ["private"]
-#  description      = "This subnet is created by Terraform"
-#}
-
-#
-#
-#
 
 locals {
   yaml_tenants= yamldecode(file("${path.module}/tenant_vars.yml"))
 }
-
-
-
-#output "yaml_tenants" {
-#  value = local.yaml_tenants
-#}
-
-
-
-
-#output "tenant01_details" {
-#  value = local.yaml_rg.tenant[0]
-#}
 
 
 
@@ -64,12 +30,6 @@ resource "aci_tenant" "tenants" {
 }
 
 
-
-
-
-
-
-
 #new locals for bd
 
 
@@ -84,18 +44,9 @@ output "bd_details" {
 resource "aci_bridge_domain" "bridge_domains" {
   for_each = { for t in local.yaml_bd.bd : t.bd => t }
   tenant_dn   = "uni/tn-${each.value.bd_tenant_name}"
-  #tenant_dn   = each.value.bd_tenant_name
   name        = each.value.bd
   description = each.value.bd_description
 }
-
-
-
-#resource "aci_bridge_domain" "bd_for_subnet" {
-#  tenant_dn   = aci_tenant.terraform_tenant.id
-#  name        = "mark_bd_for_subnet"
-#  description = "This bridge domain is created by the Terraform ACI provider"
-#}
 
 
 #new locals for aci subnets
@@ -119,6 +70,53 @@ resource "aci_subnet" "aci_subnets" {
   depends_on = [null_resource.aci_subnet_dependency]
 }
 
+
+
+#new locals for epg
+
+
+locals {
+  yaml_epg= yamldecode(file("${path.module}/epg_vars.yml"))
+}
+
+output "epg_details" {
+  value = { for t in local.yaml_epg.epg : t.epg => t }
+}
+
+resource "aci_application_epg" "epgs" {
+  for_each = { for t in local.yaml_epg.epg: t.epg => t }
+  name = each.value.epg
+  #application_profile_dn = each.value.epg_map_to_app_profile
+  #application_profile_dn = "uni/tn-default/ap-${each.value.epg_map_to_app_profile}"
+  #application_profile_dn = "uni/tn-${each.value.epg_tenant}-${each.value.epg_map_to_app_profile}"
+  application_profile_dn = "uni/tn-${each.value.epg_tenant}/ap-${each.value.epg_map_to_app_profile}"
+  relation_fv_rs_bd = "uni/tn-${each.value.epg_tenant}/BD-${each.value.epg_map_to_bd}"
+
+  depends_on = [null_resource.epg_dependency]
+}
+
+
+# new locals for application_profile
+
+
+locals {
+  yaml_app_profile= yamldecode(file("${path.module}/app_profile_vars.yml"))
+}
+
+output "app_profile_details" {
+  value = { for t in local.yaml_app_profile.app_profile : t.app_profile => t }
+}
+
+resource "aci_application_profile" "app_profiles" {
+  for_each = { for t in local.yaml_app_profile.app_profile : t.app_profile => t }
+  tenant_dn    = "uni/tn-${each.value.app_profile_tenant}"
+  name        = each.value.app_profile
+}
+
+
+
+
+# dont build subnet untill bd is built
 resource "null_resource" "aci_subnet_dependency" {
   depends_on = [aci_bridge_domain.bridge_domains]
 
@@ -127,3 +125,11 @@ resource "null_resource" "aci_subnet_dependency" {
   }
 }
 
+# dont build epg untill app profile is built
+resource "null_resource" "epg_dependency" {
+  depends_on = [aci_application_profile.app_profiles]
+
+  triggers = {
+    epg_dependency = "${jsonencode(aci_application_profile.app_profiles)}"
+  }
+}
