@@ -9,7 +9,7 @@ provider "aci" {
 }
 
 
-
+#new locals for tenants
 
 locals {
   yaml_tenants= yamldecode(file("${path.module}/tenant_vars.yml"))
@@ -46,6 +46,10 @@ resource "aci_bridge_domain" "bridge_domains" {
   tenant_dn   = "uni/tn-${each.value.bd_tenant_name}"
   name        = each.value.bd
   description = each.value.bd_description
+
+  depends_on = [
+    aci_tenant.tenants,
+  ]
 }
 
 
@@ -67,7 +71,10 @@ resource "aci_subnet" "aci_subnets" {
   description = each.value.aci_subnet_description
   scope = [each.value.aci_subnet_scope]
 
-  depends_on = [null_resource.aci_subnet_dependency]
+  depends_on = [
+    aci_tenant.tenants,
+    aci_bridge_domain.bridge_domains,
+  ]
 }
 
 
@@ -86,13 +93,14 @@ output "epg_details" {
 resource "aci_application_epg" "epgs" {
   for_each = { for t in local.yaml_epg.epg: t.epg => t }
   name = each.value.epg
-  #application_profile_dn = each.value.epg_map_to_app_profile
-  #application_profile_dn = "uni/tn-default/ap-${each.value.epg_map_to_app_profile}"
-  #application_profile_dn = "uni/tn-${each.value.epg_tenant}-${each.value.epg_map_to_app_profile}"
   application_profile_dn = "uni/tn-${each.value.epg_tenant}/ap-${each.value.epg_map_to_app_profile}"
   relation_fv_rs_bd = "uni/tn-${each.value.epg_tenant}/BD-${each.value.epg_map_to_bd}"
 
-  depends_on = [null_resource.epg_dependency]
+  depends_on = [
+    aci_tenant.tenants,
+    aci_application_profile.app_profiles,
+    aci_bridge_domain.bridge_domains,
+  ]
 }
 
 
@@ -111,25 +119,13 @@ resource "aci_application_profile" "app_profiles" {
   for_each = { for t in local.yaml_app_profile.app_profile : t.app_profile => t }
   tenant_dn    = "uni/tn-${each.value.app_profile_tenant}"
   name        = each.value.app_profile
+
+  depends_on = [
+    aci_tenant.tenants,
+  ]
 }
 
 
 
 
-# dont build subnet untill bd is built
-resource "null_resource" "aci_subnet_dependency" {
-  depends_on = [aci_bridge_domain.bridge_domains]
 
-  triggers = {
-    aci_subnet_dependency = "${jsonencode(aci_bridge_domain.bridge_domains)}"
-  }
-}
-
-# dont build epg untill app profile is built
-resource "null_resource" "epg_dependency" {
-  depends_on = [aci_application_profile.app_profiles]
-
-  triggers = {
-    epg_dependency = "${jsonencode(aci_application_profile.app_profiles)}"
-  }
-}
