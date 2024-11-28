@@ -4,6 +4,6 @@ bd:
   bd_description: This bridge domain is created by the Terraform ACI provider1
 
 - bd: mark_2nd_bd_for_subnet
-  bd_tenant_name: marks_second_tenant_
+  bd_tenant_name: marks_second_tenant__
   bd_description: This bridge domain is created by the Terraform ACI provider2
 
